@@ -1,0 +1,48 @@
+  schema:sync         Synchronizes your entities with database schema. It
+                             runs schema update queries on all connections you
+                             have. To run update queries on a concrete
+                             connection use -c option.
+ schema:log          Shows sql to be executed by schema:sync command. It
+                             shows sql log only for your default connection. To
+                             run update queries on a concrete connection use -c
+                             option.
+  schema:drop         Drops all tables in the database on your default
+                             connection. To drop table of a concrete
+                             connection's database use -c option.
+  query               Executes given SQL query on a default connection.
+                             Specify connection name to run query on a specific
+                             connection.
+  entity:create       Generates a new entity.
+  subscriber:create   Generates a new subscriber.
+  migration:create    Creates a new migration file.
+                                                    [aliases: migrations:create]
+  migration:generate  Generates a new migration file with sql needs to be
+                             executed to update schema.
+                                                  [aliases: migrations:generate]
+  migration:run       Runs all pending migrations.
+                                                       [aliases: migrations:run]
+  migration:show      Show all migrations and whether they have been run
+                             or not
+  migration:revert    Reverts last executed migration.
+                                                    [aliases: migrations:revert]
+  version             Prints TypeORM version this project uses.
+  cache:clear         Clears all data stored in query runner cache.
+  init                Generates initial TypeORM project structure. If
+                             name specified then creates files inside directory
+                             called as name. If its not specified then creates
+                             files inside current directory.
+                             
+                             
+If you need to pass parameter with dash to npm script, you will need to add them after --. For example, if you need to generate, the command is like this:
+
+
+
+
+
+
+npm run typeorm migration:generate -- -n migrationNameHere
+npm run typeorm migration:run
+
+
+
+
