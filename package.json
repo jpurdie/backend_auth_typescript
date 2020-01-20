@@ -4,7 +4,7 @@
   "description": "PPM Backend.",
   "main": "dist/server.js",
   "scripts": {
-    "watch": "nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node src/server.ts",
+    "dev": "nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node src/server.ts",
     "build-ts": "tsc",
     "copy-static-assets": "ts-node copyStaticAssets.ts",
     "tslint": "npm run tslint-fix && tslint -c tslint.json -p tsconfig.json",
