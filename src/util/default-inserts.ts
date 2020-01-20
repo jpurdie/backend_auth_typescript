@@ -11,7 +11,7 @@ export async function groupInsert() {
     
     console.log('Check if Group "' + entry + '" exists...')
     const existingRL = await rlRepository.find({ 
-      where: { Group: entry }
+      where: { group: entry }
     })
     if (existingRL.length > 0 ) {
       console.log('It exists. skipping...')
@@ -23,7 +23,7 @@ export async function groupInsert() {
     tempGroup.group = entry
     tempGroup.isActive = true
     const rlSaved = await rlRepository.save(tempGroup)
-    console.log('Inserted')
+    console.log('Inserted', rlSaved)
     console.log(rlSaved)
     
   }   

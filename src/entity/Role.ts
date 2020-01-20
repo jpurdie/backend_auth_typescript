@@ -1,9 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 import { Length } from 'class-validator'
 
-
 @Entity()
-export class Roles {
+export class Role {
     @PrimaryGeneratedColumn()
     id: number
   
