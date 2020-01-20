@@ -13,7 +13,6 @@ import * as PostgressConnectionStringParser from 'pg-connection-string'
 
 // import { logger } from './logging'
 import { config } from './config'
-
 import * as defaultInserts  from './util/default-inserts'
 
 // Load environment variables from .env file, where API keys and passwords are configured
@@ -37,8 +36,9 @@ createConnection({
     username: connectionOptions.user,
     password: connectionOptions.password,
     database: connectionOptions.database,
-    synchronize: true,
-    logging: false,
+   "synchronize": true,
+   "logging": false,
+  
     entities: [
       `${__dirname}/entity/**/*.ts`,
     ],
