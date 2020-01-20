@@ -11,10 +11,10 @@ import 'reflect-metadata'
 import * as PostgressConnectionStringParser from 'pg-connection-string'
 
 
-import { logger } from './logging'
+// import { logger } from './logging'
 import { config } from './config'
 
-import * as defaultInserts  from './util/DefaultInserts'
+import * as defaultInserts  from './util/default-inserts'
 
 // Load environment variables from .env file, where API keys and passwords are configured
 dotenv.config({ path: '.env' })
@@ -58,9 +58,10 @@ createConnection({
       origin: '*'
     }))
   
-    app.use('/api/', require('./routes/routes'))
+    app.use('/', require('./routes/insecure'))
+    app.use('/api/', require('./routes/secure'))
 
-    await defaultInserts.roleLkupInsert()
+    await defaultInserts.groupInsert()
 
     // start the Express server
     app.listen( config.port, () => {
