@@ -3,7 +3,7 @@ import { getManager, Repository } from 'typeorm'
 
 export async function groupInsert() { 
   // default list.... add values here to be inserted on creation
-  const list: string[] = ['owner', 'admin']
+  const list: string[] = ['owner', 'admin', 'user']
   
   const rlRepository: Repository<Group> = getManager().getRepository(Group)
   

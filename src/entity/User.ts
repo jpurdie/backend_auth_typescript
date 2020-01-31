@@ -1,9 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { Entity, Index, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { OrganizationUser } from './OrganizationUser'
 
 @Entity()
 export class User {
+    
     @PrimaryGeneratedColumn()
     id: number
+  
+    @Index({ unique: true })
+    @Column()
+    externalId: string
   
     @Column()
     firstName: string;
@@ -11,7 +17,12 @@ export class User {
     @Column()
     lastName: string;
   
+    @Index({ unique: true })
     @Column()
     email: string;
-
+  
+    password: string;
+  
+    @OneToMany(type => OrganizationUser, organizationUser => organizationUser.user)
+    organizationUser: OrganizationUser[]
 }

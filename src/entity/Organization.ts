@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { OrganizationUser } from './OrganizationUser'
 
 @Entity()
 export class Organization {
@@ -18,5 +19,8 @@ export class Organization {
 
     @UpdateDateColumn()
     updatedDate: Date   
+  
+    @OneToMany(type => OrganizationUser, organizationUser => organizationUser.user)
+    organizationUser: OrganizationUser[]
 
 }
