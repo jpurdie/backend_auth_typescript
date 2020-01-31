@@ -43,6 +43,8 @@ If you need to pass parameter with dash to npm script, you will need to add them
 npm run typeorm migration:generate -- -n migrationNameHere
 npm run typeorm migration:run
 
+npm run typeorm entity:create -- -n EntityName
+
 
 
 

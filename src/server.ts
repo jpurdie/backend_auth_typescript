@@ -13,7 +13,7 @@ import * as PostgressConnectionStringParser from 'pg-connection-string'
 
 // import { logger } from './logging'
 import { config } from './config'
-import * as defaultInserts  from './util/default-inserts'
+import * as defaultInserts  from './util/DefaultInserts'
 
 // Load environment variables from .env file, where API keys and passwords are configured
 dotenv.config({ path: '.env' })
