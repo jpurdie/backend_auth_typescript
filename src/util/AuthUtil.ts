@@ -2,6 +2,7 @@ const axios = require("axios");
 import * as dotenv from 'dotenv'
 var Redis = require("ioredis");
 var redis = new Redis();
+import { User } from './../entity/User'
 
 export class AuthUtil {
 
@@ -34,10 +35,50 @@ export class AuthUtil {
       redis.set("auth0_access_token", resp.data.access_token, 'EX', 3600); // expire in 1 hour
       return resp.data.access_token;
     } else {
-      console.log("Access Token is present. Not reaching to Auth 0.")
+      console.log("Access Token exists in redis. Not reaching to Auth 0 for token.")
       return accessToken
     }
 
+  }
+  
+  public static async createUser(user: User): Promise<string>{
+    
+    const accessToken = await AuthUtil.fetchAccessToken();
+
+    const postRequest = {
+      method: 'POST', 
+      url: 'https://' + process.env.AUTH0_DOMAIN + '/api/v2/users',
+      headers: {
+        authorization: 'Bearer ' + accessToken
+      },
+      data: {
+        "email": user.email,
+        "user_metadata": {},
+        "blocked": false,
+        "email_verified": false,
+        "app_metadata": {},
+        "given_name": user.firstName,
+        "family_name": user.lastName,
+        "name": user.firstName + user.lastName,
+        "nickname": user.firstName,
+        "connection": 'PPM',
+        "password": user.password,
+        "verify_email": false
+      }
+    };
+    
+    try {
+      const resp = await axios(postRequest);
+      if(resp.status === 201) {
+        return resp.data.user_id;
+      }
+      
+    } catch (error) {
+      console.log(error.data)
+    }
+  
+    return null;
+    
   }
 
 

@@ -45,7 +45,7 @@ createConnection({
     extra: {
         ssl: config.dbsslconn, // if not development, will use SSL
     }
- }).then(async connection => {
+ }).then(connection => {
   
    // require('./passport-config')
     const app = express()
@@ -61,7 +61,7 @@ createConnection({
     app.use('/', require('./routes/insecure'))
     app.use('/api/', require('./routes/secure'))
 
-    await defaultInserts.groupInsert()
+    defaultInserts.groupInsert()
 
     // start the Express server
     app.listen( config.port, () => {
@@ -69,6 +69,6 @@ createConnection({
     } )
   
    module.exports = app
-   await connection.close();
+   // await connection.close();
 
 }).catch(error => console.log('TypeORM connection error: ', error))
