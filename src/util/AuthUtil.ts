@@ -1,7 +1,13 @@
 const axios = require("axios");
 import * as dotenv from 'dotenv'
 var Redis = require("ioredis");
-var redis = new Redis();
+var redis = new Redis({
+  port: process.env.REDIS_PORT, // Redis port
+  host: process.env.REDIS_HOST , // Redis host
+  family: 4, // 4 (IPv4) or 6 (IPv6)
+  password: process.env.REDIS_PW,
+  db: 0
+});
 import { User } from './../entity/User'
 
 export class AuthUtil {

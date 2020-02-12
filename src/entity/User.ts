@@ -20,7 +20,13 @@ export class User {
     @Index({ unique: true })
     @Column()
     email: string;
-  
+
+    @CreateDateColumn()
+    createdDate: Date
+
+    @UpdateDateColumn()
+    updatedDate: Date 
+    
     password: string;
   
     @OneToMany(type => OrganizationUser, organizationUser => organizationUser.user)
