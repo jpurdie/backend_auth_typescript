@@ -28,6 +28,13 @@ import {
 export default class OrgsController {
 
   public static async register(req: express.Request, res: express.Response, next) {
+    console.log("fdsafdas reg safdsafda r")
+
+    if(1==1){
+      res.status(422).send()
+      return
+    }
+
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -49,31 +56,31 @@ export default class OrgsController {
     orgToBeSaved.createdDate = new Date();
     orgToBeSaved.updatedDate = new Date();
 
-    const orgRepository: Repository < Organization > = getManager().getRepository(Organization)
-    const userRepository: Repository<User> = getManager().getRepository(User)
+   //  const orgRepository: Repository < Organization > = getManager().getRepository(Organization)
+   // const userRepository: Repository<User> = getManager().getRepository(User)
     const orgUserRepository: Repository<OrganizationUser> = getManager().getRepository(OrganizationUser)
-    
-   
     
     const orgUserToSave = new OrganizationUser()
     orgUserToSave.organization = orgToBeSaved
-    
     
     //need to save user
     const userID = await authUtility.createUser(userToSave)
     userToSave.externalId = userID
     orgUserToSave.user = userToSave
-    
-    const savedOrgUserRepo = await orgUserRepository.save(orgUserToSave)
+    try{
+      const savedOrgUserRepo = await orgUserRepository.save(orgUserToSave)
 
-    
+      console.log(savedOrgUserRepo);
+      if(savedOrgUserRepo){
+        res.status(201)
+        return
+      }
+      }catch(err) {
+        console.log(err)
+      }
 
-    console.log(savedOrgUserRepo);
-    
-    
-
-
-    res.status(201)
+    res.status(422)
+    next()
   }
 
   public static validate(method: String) {

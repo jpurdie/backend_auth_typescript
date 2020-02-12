@@ -1,4 +1,3 @@
-const serverless = require('serverless-http');
 const express = require( 'express' )
 
 const bodyParser = require('body-parser')
@@ -62,12 +61,12 @@ createConnection({
     app.use('/api/', require('./routes/secure'))
 
     defaultInserts.groupInsert()
-
+    const SERVER_URL = process.env.SERVER_URL
     // start the Express server
     app.listen( config.port, () => {
-      console.log( `server started at http://0.0.0.0:${ config.port }` )
+      console.log( `server started at ${ SERVER_URL }:${ config.port }` )
     } )
-  
+
    module.exports = app
    // await connection.close();
 
