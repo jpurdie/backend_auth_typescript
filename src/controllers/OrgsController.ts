@@ -28,7 +28,7 @@ import {
 export default class OrgsController {
 
   public static async register(req: express.Request, res: express.Response, next) {
-    console.log("fdsafdas reg safdsafda r")
+    console.log("fdsafdas reg safdsfdsafdsaafda r")
 
     if(1==1){
       res.status(422).send()
