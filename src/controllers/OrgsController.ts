@@ -28,12 +28,6 @@ import {
 export default class OrgsController {
 
   public static async register(req: express.Request, res: express.Response, next) {
-    console.log("fdsafdas reg safdsfdsafdsaafda r")
-
-    if(1==1){
-      res.status(422).send()
-      return
-    }
 
 
     const errors = validationResult(req);
@@ -70,17 +64,17 @@ export default class OrgsController {
     try{
       const savedOrgUserRepo = await orgUserRepository.save(orgUserToSave)
 
+      console.log('savedOrgUserRepo');
       console.log(savedOrgUserRepo);
       if(savedOrgUserRepo){
-        res.status(201)
+        res.status(201).send()
         return
       }
-      }catch(err) {
+    }catch(err) {
         console.log(err)
-      }
+    }
 
-    res.status(422)
-    next()
+    res.status(422).send()
   }
 
   public static validate(method: String) {
