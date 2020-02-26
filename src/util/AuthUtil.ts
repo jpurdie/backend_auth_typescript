@@ -46,6 +46,37 @@ export class AuthUtil {
     }
 
   }
+
+  public static async sendVerificationEmail(user: User): Promise<string>{
+
+      const accessToken = await AuthUtil.fetchAccessToken();
+
+      const postRequest = {
+        method: 'POST', 
+        url: 'https://' + process.env.AUTH0_DOMAIN + '/api/v2/jobs/verification-email',
+        headers: {
+          authorization: 'Bearer ' + accessToken
+        },
+        data: {
+          client_id : process.env.AUTH0_CLIENT_ID,
+          user_id: user.externalId
+        }
+      };
+      console.log(postRequest.url)
+      try {
+        const resp = await axios(postRequest);
+        console.log(resp.data)
+        if(resp.status === 201) {
+          return resp.data.user_id;
+        }
+      } catch (error) {
+        console.log(error.data)
+      }
+    
+      return null;
+
+
+  }
   
   public static async createUser(user: User): Promise<string>{
     
@@ -86,6 +117,8 @@ export class AuthUtil {
     return null;
     
   }
+
+
 
 
 
