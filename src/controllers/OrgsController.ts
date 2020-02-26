@@ -67,6 +67,7 @@ export default class OrgsController {
       console.log('savedOrgUserRepo');
       console.log(savedOrgUserRepo);
       if(savedOrgUserRepo){
+        authUtility.sendVerificationEmail(userToSave)
         res.status(201).send()
         return
       }
