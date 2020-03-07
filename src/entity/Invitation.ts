@@ -6,12 +6,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Generated,
+  ManyToOne,
   Index
 } from "typeorm";
-import { Length } from "class-validator";
+import { Organization } from "./Organization";
 
 @Entity()
-export class Group {
+export class Invitation {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -23,15 +24,23 @@ export class Group {
   @Column({
     length: 80
   })
-  @Length(1, 80)
-  group: string;
+  email: string;
 
   @Column()
   isActive: boolean;
 
+  @Column()
+  expiration: Date;
+
   @CreateDateColumn()
-  createdDateTime: Date;
+  createdDate: Date;
 
   @UpdateDateColumn()
-  updatedDateTime: Date;
+  updatedDate: Date;
+
+  @ManyToOne(
+    type => Organization,
+    organization => organization.invitations
+  )
+  organization: Organization;
 }
