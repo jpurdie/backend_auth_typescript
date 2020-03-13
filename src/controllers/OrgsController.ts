@@ -8,11 +8,7 @@ import { Organization } from "./../entity/Organization";
 import { OrganizationUser } from "./../entity/OrganizationUser";
 
 export default class OrgsController {
-  public static async register(
-    req: express.Request,
-    res: express.Response,
-    next
-  ) {
+  public static async register(req: express.Request, res: express.Response, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({
@@ -34,16 +30,12 @@ export default class OrgsController {
 
     //  const orgRepository: Repository < Organization > = getManager().getRepository(Organization)
     // const userRepository: Repository<User> = getManager().getRepository(User)
-    const orgUserRepository: Repository<OrganizationUser> = getManager().getRepository(
-      OrganizationUser
-    );
+    const orgUserRepository: Repository<OrganizationUser> = getManager().getRepository(OrganizationUser);
 
     const orgUserToSave = new OrganizationUser();
     orgUserToSave.organization = orgToBeSaved;
 
-    //  "tenant": "customer_12345"
-
-    //need to save user
+    // Creates user in Auth0
     const userID = await authUtility.createUser(userToSave);
     if (userID == null || userID == "") {
       res.status(422).send();
@@ -51,12 +43,20 @@ export default class OrgsController {
     }
     userToSave.externalId = userID;
     orgUserToSave.user = userToSave;
-    console.log(orgToBeSaved);
-    try {
-      const savedOrgUserRepo = await orgUserRepository.save(orgUserToSave);
 
+    try {
+      // Creates user, org, and orguser in database
+      const savedOrgUserRepo = await orgUserRepository.save(orgUserToSave);
+      orgToBeSaved.uuid = savedOrgUserRepo.uuid;
       console.log("savedOrgUserRepo");
       console.log(savedOrgUserRepo);
+
+      if (savedOrgUserRepo) {
+        // Creates permission in Auth0
+        const x = await authUtility.createRole(orgToBeSaved);
+        const y = await authUtility.createPermission(orgToBeSaved);
+      }
+
       if (savedOrgUserRepo) {
         authUtility.sendVerificationEmail(userToSave);
         res.status(201).send();
@@ -73,10 +73,7 @@ export default class OrgsController {
     switch (method) {
       case "register": {
         return [
-          body(
-            "orgName",
-            "Organization name must be between 4 and 80 characters"
-          )
+          body("orgName", "Organization name must be between 4 and 80 characters")
             .trim()
             .isLength({
               min: 4,
