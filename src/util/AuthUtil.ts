@@ -9,6 +9,7 @@ var redis = new Redis({
   db: 0
 });
 import { User } from "./../entity/User";
+import { Organization } from "src/entity/Organization";
 
 export class AuthUtil {
   public static async fetchAccessToken(): Promise<String> {
@@ -18,10 +19,7 @@ export class AuthUtil {
     const accessToken = await redis.get(key);
 
     if (accessToken === null) {
-      console.log(
-        "Access Token is null. Going out to Auth0 " +
-          process.env.AUTH0_CLIENT_ID
-      );
+      console.log("Access Token is null. Going out to Auth0 " + process.env.AUTH0_CLIENT_ID);
       var AuthenticationClient = require("auth0").AuthenticationClient;
 
       const requestBody = {
@@ -30,9 +28,7 @@ export class AuthUtil {
         audience: process.env.AUTH0_DOMAIN + "api/v2/",
         grant_type: "client_credentials"
       };
-      console.log(
-        "Sending request to auth0 " + process.env.AUTH0_DOMAIN + "api/v2/"
-      );
+      console.log("Sending request to auth0 " + process.env.AUTH0_DOMAIN + "api/v2/");
       const resp = await axios({
         method: "POST",
         headers: {
@@ -42,12 +38,10 @@ export class AuthUtil {
         data: JSON.stringify(requestBody)
       });
       console.log("Received response from auth0");
-      redis.set("auth0_access_token", resp.data.access_token, "EX", 3600); // expire in 1 hour
+      redis.set("auth0_access_token", resp.data.access_token, "EX", 30); // time in seconds
       return resp.data.access_token;
     } else {
-      console.log(
-        "Access Token exists in redis. Not reaching to Auth 0 for token."
-      );
+      console.log("Access Token exists in redis. Not reaching to Auth 0 for token.");
       return accessToken;
     }
   }
@@ -80,15 +74,95 @@ export class AuthUtil {
     return null;
   }
 
-  // public static async sendInvitationEmail(user: User): Promise<string> {
-  //   // const message = {
-  //   //   from: "elonmusk@tesla.com",
-  //   //   to: "to@email.com",
-  //   //   subject: "Design Your Model S | Tesla",
-  //   //   html:
-  //   //     "<h1>Have the most fun you can in a car!</h1><p>Get your <b>Tesla</b> today!</p>"
-  //   // };
-  // }
+  public static async createRole(org: Organization) {
+    const accessToken = await AuthUtil.fetchAccessToken();
+
+    const postRequest = {
+      method: "POST",
+      url: process.env.AUTH0_DOMAIN + "api/v2/roles",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer " + accessToken,
+        "cache-control": "no-cache"
+      },
+      data: {
+        name: org.name.replace(/[^A-Za-z0-9]/g, "") + "|" + org.uuid,
+        description: org.name
+      }
+    };
+
+    console.log("Sending request to " + postRequest.url);
+    try {
+      const resp = await axios(postRequest);
+      console.log("Response from role creation " + resp.status);
+      if (resp.status === 201) {
+        return resp.data;
+      }
+    } catch (error) {
+      console.log("error.response");
+      console.log(error.response.status + " " + error.response.message);
+    }
+
+    return null;
+  }
+
+  public static async getResourceServers() {
+    const accessToken = await AuthUtil.fetchAccessToken();
+
+    const postRequest = {
+      method: "GET",
+      url: process.env.AUTH0_DOMAIN + "api/v2/resource-servers",
+      headers: {
+        authorization: "Bearer " + accessToken,
+        "cache-control": "no-cache"
+      }
+    };
+
+    console.log("Sending request to " + postRequest.url);
+    try {
+      const resp = await axios(postRequest);
+      console.log("Response from perm creation " + resp.status);
+      if (resp.status === 201) {
+        return resp.data;
+      }
+    } catch (error) {
+      console.log("error.response");
+      console.log(error.response);
+    }
+
+    return null;
+  }
+
+  public static async createPermission(org: Organization) {
+    const accessToken = await AuthUtil.fetchAccessToken();
+
+    const postRequest = {
+      method: "PATCH",
+      url: process.env.AUTH0_DOMAIN + "api/v2/resource-servers/5e62d0b0ab37e809294d5cce",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer " + accessToken,
+        "cache-control": "no-cache"
+      },
+      data: {
+        scopes: [{ value: org.uuid, description: org.name }]
+      }
+    };
+
+    console.log("Sending request to " + postRequest.url);
+    try {
+      const resp = await axios(postRequest);
+      console.log("Response from perm creation " + resp.status);
+      if (resp.status === 201) {
+        return resp.data;
+      }
+    } catch (error) {
+      console.log("error.response");
+      console.log(error.response);
+    }
+
+    return null;
+  }
 
   public static async createUser(user: User): Promise<string> {
     const accessToken = await AuthUtil.fetchAccessToken();
@@ -104,7 +178,7 @@ export class AuthUtil {
         user_metadata: {},
         blocked: false,
         email_verified: false,
-        app_metadata: { tenant: "org_12345" },
+        app_metadata: {},
         given_name: user.firstName,
         family_name: user.lastName,
         name: user.firstName + user.lastName,
@@ -125,6 +199,37 @@ export class AuthUtil {
     } catch (error) {
       console.log("error.response.status");
       console.log(error.response.status);
+    }
+
+    return null;
+  }
+
+  public static async associatePermissionsWithRole(roleID: String, permissionId: String) {
+    const accessToken = await AuthUtil.fetchAccessToken();
+
+    const postRequest = {
+      method: "POST",
+      url: process.env.AUTH0_DOMAIN + "api/v2/roles/" + roleID + "/permissions",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer " + accessToken,
+        "cache-control": "no-cache"
+      },
+      data: {
+        permissions: ["object"]
+      }
+    };
+
+    console.log("Sending request to " + postRequest.url);
+    try {
+      const resp = await axios(postRequest);
+      console.log("Response from perm creation " + resp.status);
+      if (resp.status === 201) {
+        return resp.data;
+      }
+    } catch (error) {
+      console.log("error.response");
+      console.log(error.response);
     }
 
     return null;
