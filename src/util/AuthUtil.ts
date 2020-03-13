@@ -138,7 +138,7 @@ export class AuthUtil {
 
     const postRequest = {
       method: "PATCH",
-      url: process.env.AUTH0_DOMAIN + "api/v2/resource-servers/5e62d0b0ab37e809294d5cce",
+      url: process.env.AUTH0_DOMAIN + "api/v2/resource-servers/" + process.env.AUTH0_RESOURCESERVER_ID,
       headers: {
         "content-type": "application/json",
         authorization: "Bearer " + accessToken,
