@@ -15,6 +15,7 @@ export default class OrgsController {
         errors: errors.array()
       });
     }
+    const entityManager = getManager();
 
     let userToSave = new User();
     userToSave.email = req.body.email;
@@ -28,35 +29,35 @@ export default class OrgsController {
     orgToBeSaved.createdDate = new Date();
     orgToBeSaved.updatedDate = new Date();
 
-    //  const orgRepository: Repository < Organization > = getManager().getRepository(Organization)
-    // const userRepository: Repository<User> = getManager().getRepository(User)
-    const orgUserRepository: Repository<OrganizationUser> = getManager().getRepository(OrganizationUser);
-
     const orgUserToSave = new OrganizationUser();
     orgUserToSave.organization = orgToBeSaved;
 
     // Creates user in Auth0
-    const userID = await authUtility.createUser(userToSave);
-    if (userID == null || userID == "") {
+    const externalID = await authUtility.createUser(userToSave);
+    if (externalID == null || externalID == "") {
       res.status(422).send();
       return;
     }
-    userToSave.externalId = userID;
+
+    //user was created in Auth0
+    userToSave.externalId = externalID;
     orgUserToSave.user = userToSave;
 
     try {
       // Creates user, org, and orguser in database
-      const savedOrgUserRepo = await orgUserRepository.save(orgUserToSave);
+      // const savedOrgUserRepo = await orgUserRepository.save(orgUserToSave);
+      const savedOrgUserRepo = await entityManager.save(orgUserToSave);
       orgToBeSaved.uuid = savedOrgUserRepo.uuid;
-      console.log("savedOrgUserRepo");
-      console.log(savedOrgUserRepo);
+      console.log("savedOrgUserRepo: ", savedOrgUserRepo);
 
       if (savedOrgUserRepo) {
         // Creates permission in Auth0
-        const x = await authUtility.createRole(orgToBeSaved);
-        const y = await authUtility.createPermission(orgToBeSaved);
+        const role = await authUtility.createRole(orgToBeSaved);
+        const perm = await authUtility.createPermission(orgToBeSaved);
+        const y = await authUtility.associatePermissionsWithRole(role, perm);
+        const z = await authUtility.assignRoleToUser(orgUserToSave.user, role);
       }
-
+      res.status(418).send();
       if (savedOrgUserRepo) {
         authUtility.sendVerificationEmail(userToSave);
         res.status(201).send();

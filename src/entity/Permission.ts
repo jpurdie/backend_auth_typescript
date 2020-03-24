@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, Up
 import { Length } from "class-validator";
 
 @Entity()
-export class Role {
+export class Permission {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -11,9 +11,9 @@ export class Role {
   @Index({ unique: true })
   uuid: string;
 
-  @Index({ unique: true })
-  @Column()
-  externalId: string;
+  // @Index({ unique: true })
+  // @Column()
+  // externalId: string;
 
   @Column({
     length: 80
