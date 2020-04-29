@@ -11,7 +11,7 @@ import * as PostgressConnectionStringParser from "pg-connection-string";
 
 // import { logger } from './logging'
 import { config } from "./config";
-//import * as defaultInserts  from './util/DefaultInserts'
+import * as defaultInserts from "./util/DefaultInserts";
 
 // Load environment variables from .env file, where API keys and passwords are configured
 dotenv.config({ path: ".env" });
@@ -19,7 +19,7 @@ dotenv.config({ path: ".env" });
 // Get DB connection options from env variable
 const connectionOptions = PostgressConnectionStringParser.parse(config.databaseUrl);
 
-const xlogger = function(req, res, next) {
+const xlogger = function (req, res, next) {
   console.log(req.method + " " + req.url);
   next(); // Passing the request to the next handler in the stack.
 };
@@ -39,10 +39,10 @@ createConnection({
 
   entities: [`${__dirname}/entity/**/*.ts`],
   extra: {
-    ssl: config.dbsslconn // if not development, will use SSL
-  }
+    ssl: config.dbsslconn, // if not development, will use SSL
+  },
 })
-  .then(connection => {
+  .then((connection) => {
     // require('./passport-config')
     const app = express();
     app.use(bodyParser.urlencoded({ extended: false }));
@@ -52,14 +52,14 @@ createConnection({
 
     app.use(
       cors({
-        origin: "*"
+        origin: "*",
       })
     );
 
     app.use("/", require("./routes/insecure"));
     app.use("/api/", require("./routes/secure"));
 
-    // defaultInserts.groupInsert();
+    defaultInserts.rolesInsert();
     const SERVER_URL = process.env.SERVER_URL;
     // start the Express server
     app.listen(config.port, () => {
@@ -69,4 +69,4 @@ createConnection({
     module.exports = app;
     // await connection.close();
   })
-  .catch(error => console.log("TypeORM connection error: ", error));
+  .catch((error) => console.log("TypeORM connection error: ", error));

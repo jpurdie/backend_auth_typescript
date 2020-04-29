@@ -4,6 +4,7 @@ import { default as PingController } from "../controllers/PingController";
 import { default as OrgsController } from "../controllers/OrgsController";
 import { default as UsersController } from "../controllers/UsersController";
 import { default as InvitationsController } from "../controllers/InvitationsController";
+const authz = require("../middlewares/Authz");
 
 const jwt = require("express-jwt");
 const jwtAuthz = require("express-jwt-authz");
@@ -20,37 +21,24 @@ const checkJwt = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: process.env.AUTH0_DOMAIN + ".well-known/jwks.json"
+    jwksUri: process.env.AUTH0_DOMAIN + ".well-known/jwks.json",
   }),
 
   // Validate the audience and the issuer.
   audience: process.env.AUTH0_AUDIENCE,
   issuer: process.env.AUTH0_DOMAIN,
-  algorithms: ["RS256"]
+  algorithms: ["RS256"],
 });
 
 //ping controller
-router.get("/ping", checkJwt, PingController.ping);
+router.get("/ping", [authz(["owner", "admin"]), checkJwt], PingController.ping);
 
 // auth controllers
-router.post(
-  "/v1/organizations",
-  OrgsController.validate("register"),
-  OrgsController.register
-);
+router.post("/v1/organizations", OrgsController.validate("register"), OrgsController.register);
 
 // users
-router.post(
-  "/v1/users",
-  UsersController.validate("create"),
-  UsersController.create
-);
+router.post("/v1/users", UsersController.validate("create"), UsersController.create);
 
-router.post(
-  "/v1/invitations",
-  InvitationsController.validate("create"),
-  checkJwt,
-  InvitationsController.create
-);
+router.post("/v1/invitations", InvitationsController.validate("create"), checkJwt, InvitationsController.create);
 
 module.exports = router;

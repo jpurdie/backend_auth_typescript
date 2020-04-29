@@ -1,10 +1,18 @@
 import * as express from "express";
 const { validationResult, body } = require("express-validator");
 import { Invitation } from "./../entity/Invitation";
+const jwtAuthz = require("express-jwt-authz");
 
 export default class InvitationsController {
   public static async create(req: express.Request, res: express.Response) {
-    console.log("inside Inviations create");
+    const orgID = req.body.orgId;
+    console.log("orgid", orgID);
+    const createdBy = "";
+    const toEmail = req.body.email;
+    const createdDate = new Date();
+
+    console.log("jwtAuthz", jwtAuthz([orgID]));
+    const sql = "INSERT INTO invitations (to_email, created_date, created_by, organization_id) VALUES (?,?,?,?);";
 
     const errors = validationResult(req);
 
@@ -23,9 +31,7 @@ export default class InvitationsController {
     let invite = new Invitation();
     invite.email = req.body.email;
     invite.createdDate = new Date();
-    invite.expiration = new Date(
-      new Date().getTime() + 7 * 24 * 60 * 60 * 1000
-    );
+    invite.expiration = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000);
     invite.isActive = true;
     //invite.organization =
 
