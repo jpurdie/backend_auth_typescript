@@ -1,30 +1,28 @@
-import { Group } from './../entity/Group'
-import { getManager, Repository } from 'typeorm'
+import { Role } from "./../entity/Role";
+import { getManager, Repository } from "typeorm";
 
-export async function groupInsert() { 
+export async function rolesInsert() {
   // default list.... add values here to be inserted on creation
-  const list: string[] = ['owner', 'admin', 'user']
-  
-  const rlRepository: Repository<Group> = getManager().getRepository(Group)
-  
-  for (const entry of list) {
-    
-    console.log('Check if Group "' + entry + '" exists...')
-    const existingRL = await rlRepository.find({ 
-      where: { group: entry }
-    })
-    if (existingRL.length > 0 ) {
-      console.log('It exists. skipping...')
-      continue
-    }
-    console.log('Does not exist. Inserting...')
+  const list: string[] = ["owner", "admin", "user"];
 
-    const tempGroup = new Group()
-    tempGroup.group = entry
-    tempGroup.isActive = true
-    const rlSaved = await rlRepository.save(tempGroup)
-    console.log('Inserted', rlSaved)
-    console.log(rlSaved)
-    
-  }   
+  const rlRepository: Repository<Role> = getManager().getRepository(Role);
+
+  for (const entry of list) {
+    console.log('Check if Role "' + entry + '" exists...');
+    const existingRL = await rlRepository.find({
+      where: { name: entry },
+    });
+    if (existingRL.length > 0) {
+      console.log("It exists. skipping...");
+      continue;
+    }
+    console.log("Does not exist. Inserting...");
+
+    const tempRole = new Role();
+    tempRole.name = entry;
+    tempRole.isActive = true;
+    const rlSaved = await rlRepository.save(tempRole);
+    console.log("Inserted", rlSaved);
+    console.log(rlSaved);
+  }
 }
