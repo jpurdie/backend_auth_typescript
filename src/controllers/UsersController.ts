@@ -1,5 +1,5 @@
-import * as express from "express";
-const { validationResult, body } = require("express-validator");
+import * as express from 'express'
+const { validationResult, body } = require('express-validator')
 
 export default class PingController {
   public static async create(
@@ -7,18 +7,18 @@ export default class PingController {
     res: express.Response,
     next
   ) {
-    res.status(418);
-    res.send("create");
+    res.status(418)
+    res.send('create')
   }
 
   public static validate(method: String) {
     switch (method) {
-      case "create": {
+      case 'create': {
         return [
-          body("email", "Invalid email")
+          body('email', 'Invalid email')
             .exists()
             .isEmail()
-        ];
+        ]
       }
     }
   }

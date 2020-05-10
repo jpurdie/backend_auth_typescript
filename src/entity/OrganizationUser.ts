@@ -8,7 +8,7 @@ export class OrganizationUser {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne((type) => Organization, (organization) => organization.organizationUser, {
+  @ManyToOne((type) => Organization, (organization) => organization.organizationUsers, {
     cascade: true,
   })
   organization: Organization;

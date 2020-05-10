@@ -1,13 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  OneToMany,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Generated,
-  Index
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, UpdateDateColumn, Generated, Index } from "typeorm";
 import { Length } from "class-validator";
 
 @Entity()
@@ -21,7 +12,7 @@ export class Group {
   uuid: string;
 
   @Column({
-    length: 80
+    length: 80,
   })
   @Length(1, 80)
   group: string;

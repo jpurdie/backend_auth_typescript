@@ -1,14 +1,40 @@
 import * as express from "express";
 import { validate, ValidationError, Validator } from "class-validator";
-import { getManager, Repository } from "typeorm";
+import { getManager, Repository, getRepository } from "typeorm";
 const { validationResult, body } = require("express-validator");
 import { AuthUtil as authUtility } from "./../util/AuthUtil";
 import { User } from "./../entity/User";
 import { Organization } from "./../entity/Organization";
 import { OrganizationUser } from "./../entity/OrganizationUser";
 import { Role } from "./../entity/Role";
+const jwtDecode = require("jwt-decode");
 
 export default class OrgsController {
+  public static async fetchAllAccessable(req: express.Request, res: express.Response, next) {
+    const token: string = req.headers["authorization"];
+    const decoded = jwtDecode(token);
+    const userId = decoded.sub;
+
+    const entityManager = getManager();
+
+    // prettier-ignore
+    const foundOrgs = await getRepository(Organization)
+    .createQueryBuilder("organization")
+    .innerJoin(OrganizationUser, "orgUser", "orgUser.organization_id = organization.id")
+    .innerJoin(User, "user", "user.id= orgUser.user_id")
+    .where("user.externalId = :userId", { userId: userId })
+    .getMany();
+
+    for (var i = 0; i < foundOrgs.length; i++) {
+      delete foundOrgs[i].id;
+      delete foundOrgs[i].createdDate;
+      delete foundOrgs[i].isActive;
+      delete foundOrgs[i].updatedDate;
+    }
+
+    return res.json(foundOrgs).status(200);
+  }
+
   public static async register(req: express.Request, res: express.Response, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -19,13 +45,13 @@ export default class OrgsController {
     const entityManager = getManager();
     const rlRepository: Repository<Role> = getManager().getRepository(Role);
 
-    let userToSave = new User();
+    const userToSave = new User();
     userToSave.email = req.body.email;
     userToSave.firstName = req.body.firstName;
     userToSave.lastName = req.body.lastName;
     userToSave.password = req.body.password;
 
-    let orgToBeSaved = new Organization();
+    const orgToBeSaved = new Organization();
     orgToBeSaved.name = req.body.orgName;
     orgToBeSaved.isActive = true;
     orgToBeSaved.createdDate = new Date();
@@ -42,12 +68,12 @@ export default class OrgsController {
 
     // Creates user in Auth0
     const externalID = await authUtility.createUser(userToSave);
-    if (externalID == null || externalID == "") {
+    if (externalID == undefined || externalID == "") {
       res.status(422).send();
       return;
     }
 
-    //user was created in Auth0
+    // user was created in Auth0
     userToSave.externalId = externalID;
     orgUserToSave.user = userToSave;
 
