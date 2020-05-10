@@ -30,11 +30,12 @@ const checkJwt = jwt({
   algorithms: ["RS256"],
 });
 
-//ping controller
+// ping controller
 router.get("/ping", [authz(["owner", "admin"]), checkJwt], PingController.ping);
 
 // auth controllers
 router.post("/v1/organizations", OrgsController.validate("register"), OrgsController.register);
+router.get("/v1/organizations", [checkJwt], OrgsController.fetchAllAccessable);
 
 // users
 router.post("/v1/users", UsersController.validate("create"), UsersController.create);

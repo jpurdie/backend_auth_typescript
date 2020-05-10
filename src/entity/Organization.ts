@@ -1,13 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  OneToMany,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Generated,
-  Index
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, UpdateDateColumn, Generated, Index } from "typeorm";
 import { OrganizationUser } from "./OrganizationUser";
 import { Invitation } from "./Invitation";
 
@@ -22,7 +13,7 @@ export class Organization {
   uuid: string;
 
   @Column({
-    length: 80
+    length: 80,
   })
   name: string;
 
@@ -35,15 +26,9 @@ export class Organization {
   @UpdateDateColumn()
   updatedDate: Date;
 
-  @OneToMany(
-    type => OrganizationUser,
-    organizationUser => organizationUser.user
-  )
-  organizationUser: OrganizationUser[];
+  @OneToMany((type) => OrganizationUser, (organizationUser) => organizationUser.user)
+  organizationUsers: OrganizationUser[];
 
-  @OneToMany(
-    type => Invitation,
-    invitation => invitation.organization
-  )
+  @OneToMany((type) => Invitation, (invitation) => invitation.organization)
   invitations: Invitation[];
 }
