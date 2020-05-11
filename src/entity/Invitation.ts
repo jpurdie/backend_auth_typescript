@@ -1,46 +1,33 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  OneToMany,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Generated,
-  ManyToOne,
-  Index
-} from 'typeorm'
-import { Organization } from './Organization'
+import { Entity, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, UpdateDateColumn, Generated, ManyToOne, Index } from "typeorm";
+import { Organization } from "./Organization";
 
 @Entity()
 export class Invitation {
   @PrimaryGeneratedColumn()
-  id: number
+  id: number;
 
   @Column()
-  @Generated('uuid')
+  @Generated("uuid")
   @Index({ unique: true })
-  uuid: string
+  uuid: string;
 
   @Column({
-    length: 80
+    length: 80,
   })
-  email: string
+  email: string;
 
   @Column()
-  isActive: boolean
+  isActive: boolean;
 
   @Column()
-  expiration: Date
+  expiration: Date;
 
   @CreateDateColumn()
-  createdDate: Date
+  createdDate: Date;
 
   @UpdateDateColumn()
-  updatedDate: Date
+  updatedDate: Date;
 
-  @ManyToOne(
-    type => Organization,
-    organization => organization.invitations
-  )
-  organization: Organization
+  @ManyToOne((type) => Organization, (organization) => organization.invitations)
+  organization: Organization;
 }

@@ -1,29 +1,32 @@
-import { Entity, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, UpdateDateColumn, Generated, Index } from 'typeorm'
-import { Length } from 'class-validator'
-import { OrganizationUser } from './OrganizationUser'
+import { Entity, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, UpdateDateColumn, Generated, Index } from "typeorm";
+import { Length } from "class-validator";
+import { OrganizationUser } from "./OrganizationUser";
 
 @Entity()
 export class Role {
   @PrimaryGeneratedColumn()
-  id: number
+  id: number;
 
-  externalId: string
+  @Column()
+  @Generated("uuid")
+  @Index({ unique: true })
+  uuid: string;
 
   @Column({
     length: 80,
   })
   @Length(1, 80)
-  name: string
+  name: string;
 
   @Column()
-  isActive: boolean
+  isActive: boolean;
 
   @CreateDateColumn()
-  createdDateTime: Date
+  createdDateTime: Date;
 
   @UpdateDateColumn()
-  updatedDateTime: Date
+  updatedDateTime: Date;
 
   @OneToMany((type) => OrganizationUser, (organizationUser) => organizationUser.role)
-  organizationUsers: OrganizationUser[]
+  organizationUsers: OrganizationUser[];
 }
