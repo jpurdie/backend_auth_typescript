@@ -12,6 +12,7 @@ export class Role {
   @Index({ unique: true })
   uuid: string;
 
+  @Index({ unique: true })
   @Column({
     length: 80,
   })
