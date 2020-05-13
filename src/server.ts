@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import { createConnection, Connection } from "typeorm";
 const cors = require("cors");
 const helmet = require("helmet");
+var responseTime = require("response-time");
 
 // import { logger } from './logging'
 // import { config } from "./config";
@@ -28,6 +29,7 @@ createConnection()
     app.use(bodyParser.json());
     app.use(helmet());
     app.use(xlogger);
+    app.use(responseTime());
 
     app.use(
       cors({
