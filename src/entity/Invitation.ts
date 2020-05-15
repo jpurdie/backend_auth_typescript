@@ -2,14 +2,16 @@ import { Entity, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, Up
 import { Organization } from "./Organization";
 
 @Entity()
+@Index(["email", "organization"], { unique: true })
 export class Invitation {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  @Generated("uuid")
-  @Index({ unique: true })
-  uuid: string;
+  @Column({
+    length: 36,
+  })
+  @Index()
+  token: string;
 
   @Column({
     length: 80,
