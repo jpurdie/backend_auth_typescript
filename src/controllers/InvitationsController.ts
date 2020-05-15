@@ -1,54 +1,76 @@
-import * as express from 'express'
-const { validationResult, body } = require('express-validator')
-import { Invitation } from './../entity/Invitation'
-const jwtAuthz = require('express-jwt-authz')
+import * as express from "express";
+const { validationResult, body } = require("express-validator");
+import { Invitation } from "./../entity/Invitation";
+import { Organization } from "./../entity/Organization";
+import { AppUtil } from "./../util/AppUtil";
+const mailgun = require("mailgun-js");
+import { getManager } from "typeorm";
+const jwtDecode = require("jwt-decode");
 
 export default class InvitationsController {
   public static async create(req: express.Request, res: express.Response) {
-    const orgID = req.body.orgId
-    console.log('orgid', orgID)
-    const createdBy = ''
-    const toEmail = req.body.email
-    const createdDate = new Date()
+    const createdBy = "";
+    const toEmail = req.body.email;
+    const createdDate = new Date();
 
-    console.log('jwtAuthz', jwtAuthz([orgID]))
-    const sql = 'INSERT INTO invitations (to_email, created_date, created_by, organization_id) VALUES (?,?,?,?);'
-
-    const errors = validationResult(req)
+    const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
       return res.status(422).json({
-        errors: errors.array()
-      })
+        errors: errors.array(),
+      });
     }
 
-    const user = req['user']
-    console.log(user)
-    const sub = user.sub // auth0 unique ID
+    const orgID = req.query.org_id;
+    console.log("orgid", orgID);
+    const token: string = req.headers["authorization"];
+    const decoded = jwtDecode(token);
+    const userId = decoded.sub;
 
-    // need to get org based on external ID
+    console.log("userId", userId);
+    console.log("orgid", orgID);
 
-    const invite = new Invitation()
-    invite.email = req.body.email
-    invite.createdDate = new Date()
-    invite.expiration = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
-    invite.isActive = true
-    // invite.organization =
+    // prettier-ignore
+    let organization = await getManager().createQueryBuilder()
+    .select('org.id')
+    .from(Organization, 'org')
+    .where('org.uuid = :orgID', { orgID: orgID })
+    .getOne()
+    const entityManager = getManager(); // you can also get it via getConnection().manager
 
-    console.log(invite)
+    const invite = new Invitation();
+    invite.email = req.body.email;
+    invite.createdDate = new Date();
+    invite.expiration = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000);
+    invite.isActive = true;
 
-    res.status(418)
-    return res.send(invite)
+    const tokenLengths = [32, 33, 34, 35, 36];
+    const tokenLength = tokenLengths[Math.floor(Math.random() * tokenLengths.length)];
+    invite.token = AppUtil.makeRandomStr(tokenLength);
+    invite.organization = organization;
+
+    await entityManager.save(invite);
+
+    const DOMAIN = process.env.MAILGUN_DOMAIN_NAME;
+    const mg = mailgun({ apiKey: process.env.MAILGUN_API_KEY, domain: DOMAIN });
+    const data = {
+      from: "Excited User <me@samples.mailgun.org>",
+      to: toEmail,
+      subject: "You've been invited to join " + process.env.APP_NAME,
+      text: "Testing some Mailgun awesomness!",
+    };
+    mg.messages().send(data, function (error, body) {
+      console.log(body);
+    });
+
+    res.status(418);
+    return res.send(invite);
   }
 
   public static validate(method: String) {
     switch (method) {
-      case 'create': {
-        return [
-          body('email', 'Invalid email')
-            .exists()
-            .isEmail()
-        ]
+      case "create": {
+        return [body("email", "Invalid email").exists().isEmail()];
       }
     }
   }
