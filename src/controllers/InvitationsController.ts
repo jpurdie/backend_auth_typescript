@@ -4,10 +4,37 @@ import { Invitation } from "./../entity/Invitation";
 import { Organization } from "./../entity/Organization";
 import { AppUtil } from "./../util/AppUtil";
 const mailgun = require("mailgun-js");
-import { getManager } from "typeorm";
+import { getManager, getRepository } from "typeorm";
 const jwtDecode = require("jwt-decode");
 
 export default class InvitationsController {
+  public static async fetch(req: express.Request, res: express.Response) {
+    const sentToken = req.params.token;
+
+    // prettier-ignore
+    const foundInvitation = await getRepository(Invitation)
+    .createQueryBuilder("invitation")
+    .leftJoinAndSelect("invitation.organization", "org")
+    .where("invitation.token = :sentToken", { sentToken: sentToken })
+    .printSql()
+    .getOne();
+    console.log(foundInvitation);
+
+    if (foundInvitation == undefined || foundInvitation.isActive === false) {
+      res.status(404).send();
+      return;
+    }
+
+    delete foundInvitation.id;
+    delete foundInvitation.updatedDate;
+    delete foundInvitation.organization.id;
+    delete foundInvitation.organization.createdDate;
+    delete foundInvitation.organization.isActive;
+    delete foundInvitation.organization.updatedDate;
+
+    return res.status(200).json(foundInvitation);
+  }
+
   public static async create(req: express.Request, res: express.Response) {
     const createdBy = "";
     const toEmail = req.body.email;
@@ -46,7 +73,8 @@ export default class InvitationsController {
 
     const tokenLengths = [32, 33, 34, 35, 36];
     const tokenLength = tokenLengths[Math.floor(Math.random() * tokenLengths.length)];
-    invite.token = AppUtil.makeRandomStr(tokenLength);
+    const inviteToken = AppUtil.makeRandomStr(tokenLength);
+    invite.token = inviteToken;
     invite.organization = organization;
 
     await entityManager.save(invite);
@@ -57,13 +85,13 @@ export default class InvitationsController {
       from: "Excited User <me@samples.mailgun.org>",
       to: toEmail,
       subject: "You've been invited to join " + process.env.APP_NAME,
-      text: "Testing some Mailgun awesomness!",
+      text: "Testing some Mailgun awesomness! <br><br> Click on this link to sign up." + process.env.SERVER_URL + "/invite?t=" + inviteToken,
     };
     mg.messages().send(data, function (error, body) {
       console.log(body);
     });
 
-    res.status(418);
+    res.status(200);
     return res.send(invite);
   }
 

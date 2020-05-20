@@ -31,7 +31,7 @@ const checkJwt = jwt({
 });
 
 // ping controller
-router.get("/ping", [authz(["owner", "admin"]), checkJwt], PingController.ping);
+router.get("/ping", [authz(["owner", "admin", "user"]), checkJwt], PingController.ping);
 
 // auth controllers
 router.post("/v1/organizations", OrgsController.validate("register"), OrgsController.register);
@@ -41,5 +41,6 @@ router.get("/v1/organizations", [checkJwt], OrgsController.fetchAllAccessable);
 router.post("/v1/users", UsersController.validate("create"), UsersController.create);
 
 router.post("/v1/invitations", InvitationsController.validate("create"), checkJwt, InvitationsController.create);
+router.get("/v1/invitations/:token", InvitationsController.fetch);
 
 module.exports = router;
