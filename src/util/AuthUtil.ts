@@ -150,8 +150,9 @@ export class AuthUtil {
         return resp.data.user_id;
       }
     } catch (error) {
-      console.log("error.response.status");
+      console.log(error.response.data);
       console.log(error.response.status);
+      console.log(error.response.headers);
     }
 
     return undefined;
