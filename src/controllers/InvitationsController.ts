@@ -82,10 +82,10 @@ export default class InvitationsController {
     const DOMAIN = process.env.MAILGUN_DOMAIN_NAME;
     const mg = mailgun({ apiKey: process.env.MAILGUN_API_KEY, domain: DOMAIN });
     const data = {
-      from: "Excited User <me@samples.mailgun.org>",
+      from: "Admin Admin <me@samples.mailgun.org>",
       to: toEmail,
       subject: "You've been invited to join " + process.env.APP_NAME,
-      text: "Testing some Mailgun awesomness! <br><br> Click on this link to sign up." + process.env.SERVER_URL + "/invite?t=" + inviteToken,
+      text: "Click on this link to sign up." + process.env.SERVER_URL + "/invite?t=" + inviteToken,
     };
     mg.messages().send(data, function (error, body) {
       console.log(body);

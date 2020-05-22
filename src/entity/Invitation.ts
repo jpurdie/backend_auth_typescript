@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, Up
 import { Organization } from "./Organization";
 
 @Entity()
-@Index(["email", "organization"], { unique: true })
+@Index(["email", "organization", "token"], { unique: true })
 export class Invitation {
   @PrimaryGeneratedColumn()
   id: number;
