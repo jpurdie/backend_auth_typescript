@@ -77,6 +77,15 @@ export default class InvitationsController {
     invite.token = inviteToken;
     invite.organization = organization;
 
+    //invalidate all the previous invitations
+    // prettier-ignore
+    await entityManager.createQueryBuilder()
+    .update(Invitation)
+    .set({ isActive: false })
+    .where("email = :email", { email: invite.email })
+    .andWhere("\"organizationId\" = :organizationId", { organizationId: organization.id })
+    .execute();
+
     await entityManager.save(invite);
 
     const DOMAIN = process.env.MAILGUN_DOMAIN_NAME;
@@ -91,8 +100,62 @@ export default class InvitationsController {
       console.log(body);
     });
 
-    res.status(200);
+    res.status(201);
     return res.send(invite);
+  }
+
+  public static async fetchAll(req: express.Request, res: express.Response) {
+    const sentOrgUuid = req.query.org_id;
+    console.log("sentOrgUuid", sentOrgUuid);
+    const token: string = req.headers["authorization"];
+    const decoded = jwtDecode(token);
+    const userId = decoded.sub;
+
+    // prettier-ignore
+    const foundInvitations = await getRepository(Invitation)
+    .createQueryBuilder("invitation")
+    .leftJoin("invitation.organization", "org")
+    .where("org.uuid = :sentOrgUuid", { sentOrgUuid: sentOrgUuid })
+    .andWhere("invitation.isActive=TRUE")
+    .printSql()
+    .getMany();
+    console.log(foundInvitations);
+
+    let response = [];
+    for (let i = 0; i < foundInvitations.length; i++) {
+      delete foundInvitations[i].id;
+      delete foundInvitations[i].token;
+      delete foundInvitations[i].isActive;
+      delete foundInvitations[i].createdDate;
+      response.push(foundInvitations[i]);
+    }
+
+    return res.status(200).json(response);
+  }
+
+  public static async remove(req: express.Request, res: express.Response) {
+    const entityManager = getManager(); // you can also get it via getConnection().manager
+
+    const sentOrgUuid = req.query.org_id;
+    const sentEmail = req.params.email;
+
+    // prettier-ignore
+    let organization = await getManager().createQueryBuilder()
+    .select('org.id')
+    .from(Organization, 'org')
+    .where('org.uuid = :sentOrgUuid', { sentOrgUuid: sentOrgUuid })
+    .getOne()
+
+    //invalidate all the previous invitations
+    // prettier-ignore
+    await entityManager.createQueryBuilder()
+    .update(Invitation)
+    .set({ isActive: false })
+    .where("email = :sentEmail", { sentEmail: sentEmail })
+    .andWhere("\"organizationId\" = :organizationId", { organizationId: organization.id })
+    .execute();
+
+    return res.status(200).send();
   }
 
   public static validate(method: String) {

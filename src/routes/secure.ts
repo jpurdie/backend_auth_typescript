@@ -43,5 +43,7 @@ router.post("/v1/users", UsersController.validate("create"), UsersController.cre
 //invitations
 router.post("/v1/invitations", InvitationsController.validate("create"), checkJwt, InvitationsController.create);
 router.get("/v1/invitations/:token", InvitationsController.fetch);
+router.delete("/v1/invitations/:email", [authz(["owner", "admin"]), checkJwt], InvitationsController.remove);
+router.get("/v1/invitations", [authz(["owner", "admin"]), checkJwt], InvitationsController.fetchAll);
 
 module.exports = router;
