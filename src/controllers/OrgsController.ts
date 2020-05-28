@@ -8,6 +8,7 @@ import { Organization } from "./../entity/Organization";
 import { OrganizationUser } from "./../entity/OrganizationUser";
 import { Role } from "./../entity/Role";
 const jwtDecode = require("jwt-decode");
+import { ErrorResponse } from "./../entity/ErrorResponse";
 
 export default class OrgsController {
   public static async fetchAllAccessable(req: express.Request, res: express.Response, next) {
@@ -67,14 +68,21 @@ export default class OrgsController {
     orgUserToSave.role = existingRL[0];
 
     // Creates user in Auth0
-    const externalID = await authUtility.createUser(userToSave);
-    if (externalID == undefined || externalID == "") {
-      res.status(422).send();
+    const auth0Response = await authUtility.createUser(userToSave);
+    console.log("auth0Response", auth0Response);
+    console.log("auth0Response.error", typeof auth0Response.error);
+
+    if (auth0Response.error !== undefined) {
+      let myError = new ErrorResponse();
+      myError.code = "400";
+      myError.message = "Unable to create user. Please try again.s";
+      res.status(400).json([myError]);
       return;
     }
+    console.log("auth0Response.user_id", auth0Response.user_id);
 
     // user was created in Auth0
-    userToSave.externalId = externalID;
+    userToSave.externalId = auth0Response.user_id;
     orgUserToSave.user = userToSave;
 
     try {

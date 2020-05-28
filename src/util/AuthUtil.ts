@@ -80,7 +80,7 @@ export class AuthUtil {
       const resp = await axios(postRequest);
       console.log(resp.data);
       if (resp.status === 201) {
-        return resp.data.user_id;
+        return resp.data;
       }
     } catch (error) {
       console.log(error.data);
@@ -116,7 +116,7 @@ export class AuthUtil {
     return undefined;
   }
 
-  public static async createUser(user: User): Promise<string> {
+  public static async createUser(user: User): Promise<any> {
     const accessToken = await AuthUtil.fetchAccessToken();
     console.log("accessToken " + accessToken.length);
     const postRequest = {
@@ -146,15 +146,12 @@ export class AuthUtil {
     try {
       const resp = await axios(postRequest);
       console.log("Response from user creation " + resp.status);
-      if (resp.status === 201) {
-        return resp.data.user_id;
-      }
+      return resp.data;
     } catch (error) {
-      console.log(error.response.data);
-      console.log(error.response.status);
-      console.log(error.response.headers);
+      console.log("error.response.data", error.response.data);
+      console.log("error.response.status", error.response.status);
+      // console.log("error.response.headers", error.response.headers);
+      return error.response.data;
     }
-
-    return undefined;
   }
 }

@@ -6,6 +6,7 @@ import { AppUtil } from "./../util/AppUtil";
 const mailgun = require("mailgun-js");
 import { getManager, getRepository } from "typeorm";
 const jwtDecode = require("jwt-decode");
+import { ErrorResponse } from "./../entity/ErrorResponse";
 
 export default class InvitationsController {
   public static async fetch(req: express.Request, res: express.Response) {
@@ -21,7 +22,10 @@ export default class InvitationsController {
     console.log(foundInvitation);
 
     if (foundInvitation == undefined || foundInvitation.isActive === false) {
-      res.status(404).send();
+      let myError = new ErrorResponse();
+      myError.code = "404";
+      myError.message = "Token not found";
+      res.status(404).json([myError]);
       return;
     }
 

@@ -26,7 +26,7 @@ export default class PingController {
       let myError = new ErrorResponse();
       myError.code = "400";
       myError.message = "Token not found";
-      res.status(400).send();
+      res.status(400).json([myError]);
       return;
     }
 
@@ -34,7 +34,7 @@ export default class PingController {
       let myError = new ErrorResponse();
       myError.code = "400";
       myError.message = "Token is no longer valid";
-      res.status(400).send();
+      res.status(400).json([myError]);
       return;
     }
 
@@ -52,25 +52,30 @@ export default class PingController {
     // TODO: Convert this to querybuilder
     const rlRepository: Repository<Role> = getManager().getRepository(Role);
 
-    //default "user" role
-    const existingRL = await rlRepository.find({
-      where: { role: "user" },
-    });
+    // default "user" role
+    // prettier-ignore
+    const existingRL = await getRepository(Role).
+    createQueryBuilder("role")
+    .where("role.name = :role", { role: "user" })
+    .getOne();
 
-    orgUserToSave.role = existingRL[0];
+    orgUserToSave.role = existingRL;
 
     // Creates user in Auth0
-    const externalID = await authUtility.createUser(userToSave);
-    if (externalID == undefined || externalID == "") {
+
+    const auth0Response = await authUtility.createUser(userToSave);
+    console.log("auth0Response", auth0Response);
+
+    if (auth0Response === undefined || auth0Response.error !== "") {
       let myError = new ErrorResponse();
       myError.code = "400";
       myError.message = "Unable to create user. Please try again.";
-      res.status(400).send();
+      res.status(400).json([myError]);
       return;
     }
 
     // user was created in Auth0
-    userToSave.externalId = externalID;
+    userToSave.externalId = auth0Response.user_id;
     orgUserToSave.user = userToSave;
 
     try {
