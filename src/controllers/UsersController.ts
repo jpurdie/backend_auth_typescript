@@ -8,11 +8,11 @@ import { Role } from "./../entity/Role";
 import { User } from "./../entity/User";
 import { ErrorResponse } from "./../entity/ErrorResponse";
 import { AuthUtil as authUtility } from "./../util/AuthUtil";
+import { AppUtil } from "./../util/AppUtil";
 
-export default class PingController {
+export default class UsersController {
   public static async create(req: express.Request, res: express.Response, next) {
     const sentToken = req.body.urlToken;
-    console.log(req.body);
 
     // prettier-ignore
     const foundInvitation = await getRepository(Invitation).
@@ -37,6 +37,7 @@ export default class PingController {
       res.status(400).json([myError]);
       return;
     }
+    await AppUtil.sleep(2000); //sleep for 5 seconds
 
     //End Error Handling
 
@@ -66,7 +67,7 @@ export default class PingController {
     const auth0Response = await authUtility.createUser(userToSave);
     console.log("auth0Response", auth0Response);
 
-    if (auth0Response === undefined || auth0Response.error !== "") {
+    if (auth0Response === undefined) {
       let myError = new ErrorResponse();
       myError.code = "400";
       myError.message = "Unable to create user. Please try again.";

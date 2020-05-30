@@ -151,7 +151,7 @@ export class AuthUtil {
       console.log("error.response.data", error.response.data);
       console.log("error.response.status", error.response.status);
       // console.log("error.response.headers", error.response.headers);
-      return error.response.data;
+      return undefined;
     }
   }
 }

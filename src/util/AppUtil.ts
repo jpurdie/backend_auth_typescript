@@ -8,4 +8,8 @@ export class AppUtil {
     }
     return result;
   }
+
+  public static async sleep(n) {
+    return new Promise((resolve) => setTimeout(resolve, n));
+  }
 }

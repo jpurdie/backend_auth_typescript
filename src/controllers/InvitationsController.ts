@@ -98,7 +98,7 @@ export default class InvitationsController {
       from: "Admin Admin <me@samples.mailgun.org>",
       to: toEmail,
       subject: "You've been invited to join " + process.env.APP_NAME,
-      text: "Click on this link to sign up." + process.env.SERVER_URL + "/invite?t=" + inviteToken,
+      text: '<a href="' + process.env.SERVER_URL + "/invite?t=" + inviteToken + '">Click on this link to sign up.</a>',
     };
     mg.messages().send(data, function (error, body) {
       console.log(body);
