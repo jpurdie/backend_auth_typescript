@@ -1,5 +1,5 @@
 export class ErrorResponse {
-  message: string;
+  msg: string;
   code: string;
   detail: string;
 }

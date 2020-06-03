@@ -3,6 +3,7 @@ import { validate, ValidationError, Validator } from "class-validator";
 import { getManager, Repository, getRepository } from "typeorm";
 const { validationResult, body } = require("express-validator");
 import { AuthUtil as authUtility } from "./../util/AuthUtil";
+import { AppUtil } from "./../util/AppUtil";
 import { User } from "./../entity/User";
 import { Organization } from "./../entity/Organization";
 import { OrganizationUser } from "./../entity/OrganizationUser";
@@ -38,10 +39,16 @@ export default class OrgsController {
 
   public static async register(req: express.Request, res: express.Response, next) {
     const errors = validationResult(req);
+
     if (!errors.isEmpty()) {
-      return res.status(422).json({
-        errors: errors.array(),
-      });
+      let myErrors = [];
+      for (let i = 0; i < errors.errors.length; i++) {
+        let myError = new ErrorResponse();
+        myError.code = "400";
+        myError.msg = errors.errors[i].msg;
+        myErrors.push(myError);
+      }
+      return res.status(422).json({ errors: myErrors });
     }
     const entityManager = getManager();
     const rlRepository: Repository<Role> = getManager().getRepository(Role);
@@ -66,6 +73,9 @@ export default class OrgsController {
     });
 
     orgUserToSave.role = existingRL[0];
+    await AppUtil.sleep(3000);
+    res.status(418).json([]);
+    return;
 
     // Creates user in Auth0
     const auth0Response = await authUtility.createUser(userToSave);
@@ -75,7 +85,7 @@ export default class OrgsController {
     if (auth0Response.error !== undefined) {
       let myError = new ErrorResponse();
       myError.code = "400";
-      myError.message = "Unable to create user. Please try again.s";
+      myError.msg = "Unable to register. Please try again.";
       res.status(400).json([myError]);
       return;
     }

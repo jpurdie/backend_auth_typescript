@@ -24,7 +24,7 @@ export default class InvitationsController {
     if (foundInvitation == undefined || foundInvitation.isActive === false) {
       let myError = new ErrorResponse();
       myError.code = "404";
-      myError.message = "Token not found";
+      myError.msg = "Token not found";
       res.status(404).json([myError]);
       return;
     }

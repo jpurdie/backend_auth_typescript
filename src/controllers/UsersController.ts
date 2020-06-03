@@ -25,7 +25,7 @@ export default class UsersController {
     if (foundInvitation == undefined) {
       let myError = new ErrorResponse();
       myError.code = "400";
-      myError.message = "Token not found";
+      myError.msg = "Token not found";
       res.status(400).json([myError]);
       return;
     }
@@ -33,11 +33,10 @@ export default class UsersController {
     if (foundInvitation.isActive === false || foundInvitation.expiration < new Date()) {
       let myError = new ErrorResponse();
       myError.code = "400";
-      myError.message = "Token is no longer valid";
+      myError.msg = "Token is no longer valid";
       res.status(400).json([myError]);
       return;
     }
-    await AppUtil.sleep(2000); //sleep for 5 seconds
 
     //End Error Handling
 
@@ -70,7 +69,7 @@ export default class UsersController {
     if (auth0Response === undefined) {
       let myError = new ErrorResponse();
       myError.code = "400";
-      myError.message = "Unable to create user. Please try again.";
+      myError.msg = "Unable to create user. Please try again.";
       res.status(400).json([myError]);
       return;
     }
@@ -102,7 +101,13 @@ export default class UsersController {
   public static validate(method: String) {
     switch (method) {
       case "create": {
-        return [body("email", "Invalid email").exists().isEmail()];
+        return [
+          body("email", "Invalid email").exists().isEmail(),
+          body("firstName", "First name missing").trim().isLength({
+            min: 4,
+            max: 80,
+          }),
+        ];
       }
     }
   }

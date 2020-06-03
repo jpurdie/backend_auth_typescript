@@ -9,7 +9,13 @@ export class AppUtil {
     return result;
   }
 
-  public static async sleep(n) {
+  /**
+   *
+   * @param {number} n The time to sleep (in milliseconds)
+   * @return {Promise}
+   * **/
+
+  public static async sleep(n: number) {
     return new Promise((resolve) => setTimeout(resolve, n));
   }
 }
