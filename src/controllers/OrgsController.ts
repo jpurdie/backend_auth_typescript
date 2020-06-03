@@ -131,11 +131,11 @@ export default class OrgsController {
             max: 80,
           }),
           body("firstName", "First name missing").trim().isLength({
-            min: 4,
+            min: 2,
             max: 80,
           }),
           body("lastName", "Last name missing").trim().isLength({
-            min: 4,
+            min: 2,
             max: 80,
           }),
           body("email", "Invalid email").exists().isEmail(),
