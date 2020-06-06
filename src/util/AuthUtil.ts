@@ -43,7 +43,6 @@ export class AuthUtil {
           data: JSON.stringify(requestBody),
         });
 
-        console.log("Received response from auth0 " + resp.data.access_token);
         redis.set("auth0_access_token", resp.data.access_token, "EX", 30); // time in seconds
         return resp.data.access_token;
       } catch (error) {
@@ -118,7 +117,6 @@ export class AuthUtil {
 
   public static async createUser(user: User): Promise<any> {
     const accessToken = await AuthUtil.fetchAccessToken();
-    console.log("accessToken " + accessToken.length);
     const postRequest = {
       method: "POST",
       url: process.env.AUTH0_DOMAIN + "api/v2/users",
@@ -141,17 +139,37 @@ export class AuthUtil {
       },
     };
 
-    console.log("Sending + " + postRequest.method + " request to " + postRequest.url + " " + JSON.stringify(postRequest.data));
+    console.log("Sending + " + postRequest.method + " request to " + postRequest.url);
 
     try {
       const resp = await axios(postRequest);
       console.log("Response from user creation " + resp.status);
       return resp.data;
     } catch (error) {
-      console.log("error.response.data", error.response.data);
-      console.log("error.response.status", error.response.status);
-      // console.log("error.response.headers", error.response.headers);
-      return undefined;
+      console.error("Problem creating Auth0 user", error.response.data);
+      return error.response.data;
+    }
+  }
+
+  public static async deleteUser(user: User): Promise<any> {
+    const accessToken = await AuthUtil.fetchAccessToken();
+    const postRequest = {
+      method: "DELETE",
+      url: process.env.AUTH0_DOMAIN + "api/v2/users/" + user.externalId,
+      headers: {
+        authorization: "Bearer " + accessToken,
+      },
+    };
+
+    console.log("Sending + " + postRequest.method + " request to " + postRequest.url);
+
+    try {
+      const resp = await axios(postRequest);
+      console.log("Response from user deletion " + resp.status);
+      return resp.data;
+    } catch (error) {
+      console.error("Problem deleting Auth0 user", error.response.data);
+      return error.response.data;
     }
   }
 }

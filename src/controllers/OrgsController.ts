@@ -2,7 +2,7 @@ import * as express from "express";
 import { validate, ValidationError, Validator } from "class-validator";
 import { getManager, Repository, getRepository } from "typeorm";
 const { validationResult, body } = require("express-validator");
-import { AuthUtil as authUtility } from "./../util/AuthUtil";
+import { AuthUtil as authUtility, AuthUtil } from "./../util/AuthUtil";
 import { AppUtil } from "./../util/AppUtil";
 import { User } from "./../entity/User";
 import { Organization } from "./../entity/Organization";
@@ -73,22 +73,17 @@ export default class OrgsController {
     });
 
     orgUserToSave.role = existingRL[0];
-    await AppUtil.sleep(3000);
-    res.status(418).json([]);
-    return;
 
     // Creates user in Auth0
     const auth0Response = await authUtility.createUser(userToSave);
-    console.log("auth0Response", auth0Response);
-    console.log("auth0Response.error", typeof auth0Response.error);
 
-    if (auth0Response.error !== undefined) {
+    if (auth0Response.error !== null && auth0Response.error !== undefined) {
       let myError = new ErrorResponse();
       myError.code = "400";
-      myError.msg = "Unable to register. Please try again.";
-      res.status(400).json([myError]);
-      return;
+      myError.msg = auth0Response.message;
+      return res.status(422).json({ errors: [myError] });
     }
+
     console.log("auth0Response.user_id", auth0Response.user_id);
 
     // user was created in Auth0
@@ -97,29 +92,30 @@ export default class OrgsController {
 
     try {
       // Creates user, org, and orguser in database
-      // const savedOrgUserRepo = await orgUserRepository.save(orgUserToSave);
       const savedOrgUserRepo = await entityManager.save(orgUserToSave);
       orgToBeSaved.uuid = savedOrgUserRepo.uuid;
       console.log("savedOrgUserRepo: ", savedOrgUserRepo);
 
-      if (savedOrgUserRepo) {
-        // Creates permission in Auth0
-        //  const role = await authUtility.createRole(orgToBeSaved);
-        //  const perm = await authUtility.createPermission(orgToBeSaved);
-        //  const y = await authUtility.associatePermissionsWithRole(role, perm);
-        // const z = await authUtility.assignRoleToUser(orgUserToSave.user, role);
-      }
-      // res.status(418).send();
       if (savedOrgUserRepo) {
         authUtility.sendVerificationEmail(userToSave);
         res.status(201).send();
         return;
       }
     } catch (err) {
-      console.log(err);
+      //there was an error creating the user in the database. Need to delete the user from Auth0.
+      if (userToSave.externalId !== null && userToSave.externalId !== undefined) {
+        await AuthUtil.deleteUser(userToSave);
+      }
+      let myError = new ErrorResponse();
+      myError.code = "400";
+      myError.msg = "Unable to create user. Please try again";
+      return res.status(422).json({ errors: [myError] });
     }
 
-    res.status(422).send();
+    let myError = new ErrorResponse();
+    myError.code = "400";
+    myError.msg = "Unable to create user. Please try again";
+    return res.status(422).json({ errors: [myError] });
   }
 
   public static validate(method: String) {
@@ -132,19 +128,28 @@ export default class OrgsController {
           }),
           body("firstName", "First name missing").trim().isLength({
             min: 2,
-            max: 80,
+            max: 80, //
           }),
           body("lastName", "Last name missing").trim().isLength({
             min: 2,
             max: 80,
           }),
           body("email", "Invalid email").exists().isEmail(),
-          body("password", "Password is not valid").trim().isLength({
-            min: 10,
-            max: 80,
+          body("password", "Password is not valid").custom((pass, { req }) => {
+            if (AppUtil.isNullOrEmptyOrUnd(pass)) {
+              throw new Error("Password is not valid");
+            }
+
+            const pattern = /(?=(.*[0-9]))((?=.*[A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z]))^.{10,64}$/;
+            if (!pattern.test(pass)) {
+              throw new Error("Password is not valid");
+            } else {
+              return true;
+            }
           }),
-          body("passwordConfirm").custom((value, { req }) => {
-            if (value !== req.body.password) {
+          body("passwordConfirm").custom((passConfirm, { req }) => {
+            const pass = req.body.password;
+            if (AppUtil.isNullOrEmptyOrUnd(passConfirm) || passConfirm.trim() !== pass) {
               throw new Error("Password confirmation does not match password");
             } else {
               return true;

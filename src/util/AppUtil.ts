@@ -18,4 +18,11 @@ export class AppUtil {
   public static async sleep(n: number) {
     return new Promise((resolve) => setTimeout(resolve, n));
   }
+  public static isNullOrEmptyOrUnd(s: string): boolean {
+    if (s === null || s === undefined) {
+      return true;
+    } else if (s.length === 0) {
+      return true;
+    }
+  }
 }
