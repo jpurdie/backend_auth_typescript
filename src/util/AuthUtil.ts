@@ -117,6 +117,7 @@ export class AuthUtil {
 
   public static async createUser(user: User): Promise<any> {
     const accessToken = await AuthUtil.fetchAccessToken();
+    console.log("accessToken.length", accessToken.length);
     const postRequest = {
       method: "POST",
       url: process.env.AUTH0_DOMAIN + "api/v2/users",
@@ -133,7 +134,7 @@ export class AuthUtil {
         family_name: user.lastName,
         name: user.firstName + user.lastName,
         nickname: user.firstName,
-        connection: "PPM",
+        connection: "VitaeDB",
         password: user.password,
         verify_email: false,
       },
