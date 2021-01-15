@@ -15,8 +15,7 @@
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js"
   },
   "engines": {
-    "node": "8.x.x",
-    "npm": "5.x.x"
+    "node": "15.x.x"
   },
   "license": "MIT",
   "homepage": "https://frontend-justindpurdie242881.codeanyapp.com",
