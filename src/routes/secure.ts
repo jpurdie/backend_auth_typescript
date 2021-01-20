@@ -1,9 +1,7 @@
 const express = require("express");
 const router = express.Router();
 import { default as PingController } from "../controllers/PingController";
-import { default as OrgsController } from "../controllers/OrgsController";
 import { default as UsersController } from "../controllers/UsersController";
-import { default as InvitationsController } from "../controllers/InvitationsController";
 const authz = require("../middlewares/Authz");
 
 const jwt = require("express-jwt");
@@ -31,19 +29,16 @@ const checkJwt = jwt({
 });
 
 // ping controller
-router.get("/ping", [authz(["owner", "admin", "user"]), checkJwt], PingController.ping);
-
-// auth organizations controllers
-router.post("/v1/organizations", OrgsController.validate("register"), OrgsController.register);
-router.get("/v1/organizations", [checkJwt], OrgsController.fetchAllAccessable);
-
+router.get(
+  "/ping",
+  [authz(["owner", "admin", "user"]), checkJwt],
+  PingController.ping
+);
 // users
-router.post("/v1/users", UsersController.validate("create"), UsersController.create);
-
-//invitations
-router.post("/v1/invitations", InvitationsController.validate("create"), checkJwt, InvitationsController.create);
-router.get("/v1/invitations/:token", InvitationsController.fetch);
-router.delete("/v1/invitations/:email", [authz(["owner", "admin"]), checkJwt], InvitationsController.remove);
-router.get("/v1/invitations", [authz(["owner", "admin"]), checkJwt], InvitationsController.fetchAll);
+router.post(
+  "/v1/users",
+  UsersController.validate("create"),
+  UsersController.create
+);
 
 module.exports = router;

@@ -1,58 +1,18 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-import * as dotenv from "dotenv";
-import { createConnection, Connection } from "typeorm";
-const cors = require("cors");
-const helmet = require("helmet");
-var responseTime = require("response-time");
+import "reflect-metadata";
+import express from "express";
+import Logger from "./logger";
 
-// import { logger } from './logging'
-// import { config } from "./config";
-import * as defaultInserts from "./util/DefaultInserts";
-
-// Load environment variables from .env file, where API keys and passwords are configured
-dotenv.config({ path: ".env" });
-
-const xlogger = function (req, res, next) {
-  console.log(req.method + " " + req.url);
-  next();
+const server = async () => {
+  const app = express();
+  try {
+    const loaders = await import("./loaders");
+    await loaders.default(app);
+  } catch (err) {
+    Logger.error(err);
+    Logger.error("Loader failed. Server shutting down...");
+    return;
+  }
+  return app;
 };
 
-console.log("Starting Node App");
-
-createConnection()
-  .then(() => {
-    console.log("Connected!");
-
-    const app = express();
-    app.use(bodyParser.urlencoded({ extended: false }));
-    app.use(bodyParser.json());
-    app.use(helmet());
-    app.use(xlogger);
-    app.use(responseTime());
-
-    app.use(
-      cors({
-        origin: "*",
-      })
-    );
-
-    app.use("/", require("./routes/insecure"));
-    app.use("/api/", require("./routes/secure"));
-
-    defaultInserts.rolesInsert();
-
-    console.log("Starting Express App");
-    const server = app.listen(process.env.port, function () {
-      const host = server.address().address;
-      const port = server.address().port;
-      console.log("REST api listening at https://localhost.ppm.com:" + port);
-    });
-    module.exports = app;
-    // await connection.close();
-  })
-  .catch((e) => {
-    console.error(e);
-  });
-
-console.log("End of server.ts");
+export default server;

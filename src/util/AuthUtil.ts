@@ -10,9 +10,7 @@ const redis = new Redis({
 });
 import { getManager, Repository } from "typeorm";
 import { User } from "./../entity/User";
-import { Role } from "./../entity/Role";
 // import { Permission } from "./../entity/Permission";
-import { Organization } from "src/entity/Organization";
 
 export class AuthUtil {
   public static async fetchAccessToken(): Promise<String> {
@@ -22,7 +20,10 @@ export class AuthUtil {
     const accessToken = await redis.get(key);
 
     if (accessToken === null) {
-      console.log("Access Token is null. Going out to Auth0 " + process.env.AUTH0_CLIENT_ID);
+      console.log(
+        "Access Token is null. Going out to Auth0 " +
+          process.env.AUTH0_CLIENT_ID
+      );
       const AuthenticationClient = require("auth0").AuthenticationClient;
 
       const requestBody = {
@@ -31,7 +32,9 @@ export class AuthUtil {
         audience: process.env.AUTH0_DOMAIN + "api/v2/",
         grant_type: "client_credentials",
       };
-      console.log("Sending request to auth0 " + process.env.AUTH0_DOMAIN + "api/v2/");
+      console.log(
+        "Sending request to auth0 " + process.env.AUTH0_DOMAIN + "api/v2/"
+      );
 
       try {
         const resp = await axios({
@@ -53,7 +56,9 @@ export class AuthUtil {
         console.log(error.response.data);
       }
     } else {
-      console.log("Access Token exists in redis. Not reaching to Auth 0 for token.");
+      console.log(
+        "Access Token exists in redis. Not reaching to Auth 0 for token."
+      );
       return accessToken;
     }
   }
@@ -73,7 +78,14 @@ export class AuthUtil {
       },
     };
 
-    console.log("Sending + " + postRequest.method + " request to " + postRequest.url + " " + JSON.stringify(postRequest.data));
+    console.log(
+      "Sending + " +
+        postRequest.method +
+        " request to " +
+        postRequest.url +
+        " " +
+        JSON.stringify(postRequest.data)
+    );
 
     try {
       const resp = await axios(postRequest);
@@ -100,10 +112,17 @@ export class AuthUtil {
       },
     };
 
-    console.log("Sending + " + postRequest.method + " request to " + JSON.stringify(postRequest.url));
+    console.log(
+      "Sending + " +
+        postRequest.method +
+        " request to " +
+        JSON.stringify(postRequest.url)
+    );
     try {
       const resp = await axios(postRequest);
-      console.log("Response from perm creation " + resp.status + " " + resp.data);
+      console.log(
+        "Response from perm creation " + resp.status + " " + resp.data
+      );
       if (resp.status === 201) {
         return resp.data;
       }
@@ -140,7 +159,9 @@ export class AuthUtil {
       },
     };
 
-    console.log("Sending + " + postRequest.method + " request to " + postRequest.url);
+    console.log(
+      "Sending + " + postRequest.method + " request to " + postRequest.url
+    );
 
     try {
       const resp = await axios(postRequest);
@@ -162,7 +183,9 @@ export class AuthUtil {
       },
     };
 
-    console.log("Sending + " + postRequest.method + " request to " + postRequest.url);
+    console.log(
+      "Sending + " + postRequest.method + " request to " + postRequest.url
+    );
 
     try {
       const resp = await axios(postRequest);

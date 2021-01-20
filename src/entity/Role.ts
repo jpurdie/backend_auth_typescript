@@ -1,6 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, UpdateDateColumn, Generated, Index } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Generated,
+  Index,
+} from "typeorm";
 import { Length } from "class-validator";
-import { OrganizationUser } from "./OrganizationUser";
 
 @Entity()
 export class Role {
@@ -27,7 +35,4 @@ export class Role {
 
   @UpdateDateColumn()
   updatedDateTime: Date;
-
-  @OneToMany((type) => OrganizationUser, (organizationUser) => organizationUser.role)
-  organizationUsers: OrganizationUser[];
 }

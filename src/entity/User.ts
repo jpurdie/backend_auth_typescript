@@ -1,5 +1,12 @@
-import { Entity, Index, PrimaryGeneratedColumn, OneToMany, Column, CreateDateColumn, UpdateDateColumn, Generated } from "typeorm";
-import { OrganizationUser } from "./OrganizationUser";
+import {
+  Entity,
+  Index,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Generated,
+} from "typeorm";
 
 @Entity()
 export class User {
@@ -32,7 +39,4 @@ export class User {
   updatedDate: Date;
 
   password: string;
-
-  @OneToMany((type) => OrganizationUser, (organizationUser) => organizationUser.user)
-  organizationUser: OrganizationUser[];
 }
