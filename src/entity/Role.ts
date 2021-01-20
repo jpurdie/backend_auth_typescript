@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 import { Length } from "class-validator";
 
-@Entity()
+@Entity({ name: "Roles" })
 export class Role {
   @PrimaryGeneratedColumn()
   id: number;
