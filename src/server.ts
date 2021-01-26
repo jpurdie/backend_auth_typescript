@@ -1,18 +1,18 @@
-import 'reflect-metadata';
-import express from 'express';
-import Logger from './logger';
+import 'reflect-metadata'
+import express from 'express'
+import Logger from './logger'
 
 const server = async () => {
-  const app = express();
+  const app = express()
   try {
-    const loaders = await import('./loaders');
-    await loaders.default(app);
+    const loaders = await import('./loaders')
+    await loaders.default(app)
   } catch (err) {
-    Logger.error(err);
-    Logger.error('Loader failed. Server shutting down...');
-    return;
+    Logger.error(err)
+    Logger.error('Loader failed. Server shutting down...')
+    return
   }
-  return app;
-};
+  return app
+}
 
-export default server;
+export default server
