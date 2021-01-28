@@ -5,16 +5,16 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  Generated,
-} from "typeorm";
+  Generated
+} from 'typeorm'
 
-@Entity({ name: "Users" })
+@Entity({ name: 'Users' })
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  @Generated("uuid")
+  @Generated('uuid')
   @Index({ unique: true })
   uuid: string;
 

@@ -6,23 +6,23 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Generated,
-  Index,
-} from "typeorm";
-import { Length } from "class-validator";
+  Index
+} from 'typeorm'
+import { Length } from 'class-validator'
 
-@Entity({ name: "Roles" })
+@Entity({ name: 'Roles' })
 export class Role {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  @Generated("uuid")
+  @Generated('uuid')
   @Index({ unique: true })
   uuid: string;
 
   @Index({ unique: true })
   @Column({
-    length: 80,
+    length: 80
   })
   @Length(1, 80)
   name: string;

@@ -1,38 +1,38 @@
-import bodyParser from "body-parser";
-import cors from "cors";
-import helmet from "helmet";
-import { Application, NextFunction, Request, Response } from "express";
-import Logger from "../logger";
-import config from "../config";
-import { ValidationError } from "class-validator";
-import { isCelebrateError } from "celebrate";
+import bodyParser from 'body-parser'
+import cors from 'cors'
+import helmet from 'helmet'
+import { Application, NextFunction, Request, Response } from 'express'
+import Logger from '../logger'
+import config from '../config'
+import { ValidationError } from 'class-validator'
+import { isCelebrateError } from 'celebrate'
 
-import insecureRoutes from "../routes/insecure";
+import insecureRoutes from '../routes/insecure'
+import secureRoutes from '../routes/secure'
 // import { ErrorHandler, handleError } from "../helpers/ErrorHandler";
 
 export default (app: Application): void => {
   // Health Check endpoints
-  console.log("3");
-  app.get("/status", (req, res) => {
-    res.status(200).end();
-  });
-  app.head("/status", (req, res) => {
-    res.status(200).end();
-  });
-  app.enable("trust proxy");
+  app.get('/status', (req, res) => {
+    res.status(200).end()
+  })
+  app.head('/status', (req, res) => {
+    res.status(200).end()
+  })
+  app.enable('trust proxy')
 
   // Enable Cross Origin Resource Sharing to all origins by default
-  app.use(cors());
+  app.use(cors())
 
   // Use Helmet to secure the app by setting various HTTP headers
-  app.use(helmet());
+  app.use(helmet())
 
   // Middleware that transforms the raw string of req.body into json
-  app.use(bodyParser.json());
+  app.use(bodyParser.json())
 
   // Load API routes
-  app.use(insecureRoutes);
-  console.log("4");
+  app.use(insecureRoutes)
+  app.use(secureRoutes)
   // Error handlers
   // app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   //   if (isCelebrateError(err)) {
@@ -65,5 +65,4 @@ export default (app: Application): void => {
   //     handleError(err, res);
   //   }
   // );
-  console.log("5");
-};
+}

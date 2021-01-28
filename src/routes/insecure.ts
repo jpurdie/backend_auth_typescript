@@ -1,7 +1,7 @@
-import express from "express";
-const router = express.Router();
-import { default as PingController } from "../controllers/PingController";
+import express from 'express'
+import PingController from '../controllers/PingController'
+const router = express.Router()
 
-router.get("/ping", PingController.ping);
+router.get('/ping', PingController.ping)
 
-export default router;
+export default router

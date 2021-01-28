@@ -1,12 +1,12 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv'
 
-process.env.NODE_ENV = process.env.NODE_ENV || "development";
+process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 
-dotenv.config();
+dotenv.config()
 
-let databaseUrl = process.env.MONGODB_URI;
-if (process.env.NODE_ENV === "test") {
-  databaseUrl = process.env.MONGODB_TEST_URI;
+let databaseUrl = process.env.MONGODB_URI
+if (process.env.NODE_ENV === 'test') {
+  databaseUrl = process.env.MONGODB_TEST_URI
 }
 
 export default {
@@ -14,7 +14,7 @@ export default {
   databaseURL: databaseUrl,
   jwtSecret: process.env.JWT_SECRET,
   logs: {
-    level: process.env.LOG_LEVEL,
+    level: process.env.LOG_LEVEL
   },
-  endpointPrefix: process.env.ENDPOINT_PREFIX || "api",
-};
+  endpointPrefix: process.env.ENDPOINT_PREFIX || 'api'
+}
